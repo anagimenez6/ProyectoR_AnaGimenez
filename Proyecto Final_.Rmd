@@ -1,0 +1,156 @@
+---
+title: "Proyecto Final"
+author: "Ana Giménez Martínez"
+date: "25/11/2019"
+output: 
+    prettydoc::html_pretty:
+    theme: tactile
+    highlight: github
+---
+
+# Expresiones regulares
+
+
+Una sección en el que indiquen dos páginas con recursos sobre expresiones regulares discutidas (cuál es mejor, cuál es peor, por qué).
+
+
+Hay infinidad de tutoriales y guías sobre las **expresiones regulares o regex**. Dependiendo del nivel de conocimiento que se tenga, buscaremos páginas más básicas o más avanzadas. Siguiendo este razonamiento, compartimos dos páginas, una para cada nivel, donde las regex son explicadas y analizadas.
+
+Para empezar de cero, hemos elegido la página web del libro *"[R for Data Science](https://r4ds.had.co.nz/strings.html)"* de los autores Garrett Grolemund y Hadley Wickham. Empieza con una introducción sobre el *Data Science*, y trata todos los puntos básicos para enseñar las herramientas más importantes de R. En cuanto a las regex, da un repaso sobre la definición de strings, que permité asentar los conocimientos para aplicar todas las expresiones regulares. Es una página bastante completa que te da una visión completa de la funcionalidad de R.
+
+En esta otra [página](http://www.diegocalvo.es/expresiones-regulares-en-r/), Diego Calvo, ha compilado las expresiones regulares más utilizadas en R. A diferencia de la anterior página, Diego va directo a las diferentes expresiones y sus funciones, en vez de proveer de una introducción y explicación como lo hacían Grolemund y Wickham.
+
+
+# R Markdown
+
+R Markdown proporcina un entorno para el análisis de datos que permite combinar el código y resultados con una presentación adecuada para terceras personas que quieran entender el análisis.
+
+Para la primera página vamos a usar de referencia la misma que para las expresiones regulares, ya que considero que es un buen punto de partida para gente que no tiene todavía el conocimiento básico. En el [apartado de R Markdown](https://r4ds.had.co.nz/r-markdown.html) del libro *"R for Data Science"*, podemos encontrar toda la explicación e información relacionada con R Markdown.
+
+Por otro lado, una página que me ha servido bastante para personalizar y averiguar todas las funcionalidades básicas de R Markdown, es este [blog de Javier Cristóbal](https://markdown.es/sintaxis-markdown/). Tiene además contenido visual en forma de videos que permite visualizar de una manera más gráfica todos los trucos y consejos que nos proporciona Javier.
+
+
+# Evolución de la población de Alalpardo
+
+## Introducción
+
+Alalpardo es un pueblo pequeño situado a las afueras de Madrid. Su nombre es de origen árabe, y significa "Aldea el Pardo", y significaría: "población pequeña en tierra de labranza de color oscuro".
+
+La hipótesis más aceptada establece que Alalpardo era un lugar de descanso en el camino, y en referencia a su situación física, su nombre procede de la corrupción de una expresión árabe-bereber, que vendría a significar “al lado de la sombra” o “al lado del camino”.
+
+![Alalpardo](http://valdeolmos-alalpardo.org/wp-content/uploads/IMG-20151003-WA0000.jpg "Alalpardo")
+
+## Datos
+
+```{r setup, include=FALSE}
+
+library(rvest)
+library(reshape2)
+library(lattice) 
+library(ggplot2)
+library(rmdformats)
+library(ggthemes)
+
+```
+
+```{r set up, include=FALSE}
+alalpardo <- html_nodes(read_html("https://www.foro-ciudad.com/madrid/valdeolmos-alalpardo/habitantes.html"), "table") #Extrae las tablas
+
+sapply(alalpardo, class)
+sapply(alalpardo, function(x) dim(html_table(x, fill = TRUE, header = TRUE))) #Analizamos la tabla
+
+
+poblacion <- html_table(alalpardo[[2]])
+poblacion <- poblacion[-(22:43),]
+poblacion <- poblacion[-(1:3),]
+colnames(poblacion) <- c("ano","hombres","mujeres","total")
+
+
+nacimientos <- html_table(alalpardo[[7]])
+nacimientos <- nacimientos[-(21:24), -(4)]
+nacimientos <- nacimientos[-(1:2),-(1)]
+colnames(nacimientos) <- c("nacimientos", "fallecidos")
+
+demografia <- cbind(poblacion, nacimientos)
+str(demografia)
+
+demografia$ano <- as.Date(demografia$ano, format ="%Y")
+demografia$hombres <- as.numeric(demografia$hombres)
+demografia$mujeres <- as.numeric(demografia$mujeres)
+demografia$total <- as.numeric(demografia$total)
+demografia$nacimientos <- as.numeric(demografia$nacimientos)
+demografia$fallecidos <- as.numeric(demografia$fallecidos)
+
+```
+
+Vamos a analizar la evolución de su población en la última década. En el gráfico siguiente está representado el número de habitantes por año, desde el 2000 hasta 2017. Observamos una clara tendencia incremental.
+
+
+```{r ggplot, echo=FALSE}
+ggplot(demografia, aes(x = ano, y = total)) +
+  geom_count(
+    color = "turquoise2", 
+    fill = "white") + 
+  theme_clean() +
+  labs(
+    title = "Evolucion de la Poblacion de Alalpardo",
+    x = "Años",
+    y = "Total población")
+
+```
+
+```{r dinamico, echo=FALSE, warning=FALSE}
+library(knitr)
+library(highcharter)
+
+hchart(demografia, "scatter", hcaes(x = ano, y = total, group = total)) %>%
+  hc_title(text = "Evolución de la población de Alalpardo") %>%
+  hc_add_theme(hc_theme_elementary())
+```
+
+En la tabla están especificados todos los datos de la población, ordenados por año. El número de nacimientos y fallecidos, cruzado con los datos del total de la población, nos indica la gente no nacida en alalpardo que viene cada año.
+
+```{r resumen, echo=FALSE}
+library(kableExtra)
+
+kable(demografia)
+```
+
+## Versión avanzada
+
+
+1. Usar un gráfico de ggplot2 que use facetas (5%)
+1. Usar algún tema de `ggplot2` distinto del básico (5%)
+1. Usar gráficos dinámicos (basados o no en `ggplot2`) (10%)
+1. Usar algún paquete específico para crear tablas más atractivas visualmente que las que se usan por defecto (10%)
+1. Usar datos obtenidos a través de alguna API, haciendo _web scraping_ o similar (+15%)
+1. Usar algún tipo de formato o tema especial (particularmente si lo adaptas tú) de Rmarkdown (5%)
+
+
+## Otras consideraciones
+
+1. Hay una penalización del 10% en la nota por la mala gestión de los _encodings_ en el documento final. Nota: corregiré usando un sistema que lee por defecto `utf-8`.
+1. Hay una penalizacíón del 10% por el mal uso de los elementos ortotipográficos en el documento final. Se aplica a cosas como escribir el texto corrido como si fuesen títulos de nivel 4 o similares.
+1. Hay una penalización del 10% por notoria mala ortografía o sintaxis.
+
+
+Además, me reservo un 20% de la nota (que puede subir o bajar) en función de aspectos más o menos subjetivos como:
+
+1. Calidad del código.
+1. Calidad del contenido.
+1. Aspectos estéticos/estilísticos del documento final.
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
