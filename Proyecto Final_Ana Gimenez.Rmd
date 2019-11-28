@@ -1,14 +1,15 @@
 ---
-title: "Proyecto Final"
+title: "Proyecto Final | Ana Giménez"
 author: "Ana Giménez Martínez"
-date: "25/11/2019"
+date: "28-11-2019"
 output: 
     rmdformats::readthedown:
     self_contained: true
     thumbnails: true
     lightbox: true
     gallery: false
-    highlight: tango
+    highlight: default
+
 ---
 
 # Expresiones regulares
@@ -43,7 +44,7 @@ La hipótesis más aceptada establece que Alalpardo era un lugar de descanso en 
 
 En este 
 
-![Alalpardo](http://valdeolmos-alalpardo.org/wp-content/uploads/IMG-20151003-WA0000.jpg "Alalpardo")
+![Alalpardo](http://valdeolmos-alalpardo.org/wp-content/uploads/IMG-20151003-WA0000.jpg)
 
 ## Datos
 
@@ -54,6 +55,7 @@ library(reshape2)
 library(lattice) 
 library(ggplot2)
 library(rmdformats)
+library(kableExtra)
 library(ggthemes)
 library(plotly)
 
@@ -88,21 +90,17 @@ demografia$mujeres <- as.numeric(demografia$mujeres)
 demografia$nacimientos <- as.numeric(demografia$nacimientos)
 demografia$fallecidos <- as.numeric(demografia$fallecidos)
 
-demografia2 <- melt(demografia, id.vars = c("ano", "nacimientos", "fallecidos"))
-demografia2 <- melt(demografia2, id.vars = c("ano", "nacimientos", "fallecidos", "value"))
-colnames(demografia2) <- c("ano", "genero", "población según genero", "nacimientos vs. fallecidos", "Variación población")
-
 ```
 
-En la tabla están especificados todos los datos de la población, ordenados por año. El número de nacimientos y fallecidos, cruzado con los datos del total de la población, nos indica la gente no nacida en alalpardo que viene cada año.
+En la siguiente tabla están especificados todos los datos de la población de Alalpardo desde el año 2000. Cómo se puede observar, el número total de la población de hombres y mujeres es muy superior al de nacimientos. Lo que nos indica que Alalpardo atrae a mucha gente de fuera del pueblo. 
 
 ```{r resumen, echo=FALSE}
-library(kableExtra)
 
 kable(demografia)
+
 ```
 
-Vamos a analizar la evolución de su población en la última década. En el gráfico siguiente está representado el número de habitantes por año, desde el 2000 hasta 2017. Observamos una clara tendencia incremental.
+En cuánto a la *evolución de la población total* según el género, observamos en el gráfico que ha habido una tendencia de crecimiento de población en los últimos años.
 
 ```{r plotly, echo=FALSE}
 
@@ -111,14 +109,17 @@ plot_ly(demografia, x = ~ano, y = ~mujeres, name = 'mujeres', type = 'scatter', 
 
 ```
 
+Por último, analizamos el número de personas nacidas en Alalpardo, que es bastante inferior si lo comparamos con la población global. Además, se detecta una caída en los 2 años. Esto puede indicar que las familiar que vienen a este pueblo a vivir, ya hijos.
+
+
 ```{r ggplot, echo=FALSE}
 
 ggplot(demografia, aes(x = ano, y = nacimientos)) +
-  geom_point(color = "darkred", fill = "white", size = 5) + 
-  theme_clean() +
+  geom_point(color = "darkred", size = 5) + 
+  theme(panel.background = element_rect(fill = "floralwhite"),
+        plot.title = element_text(face = "bold", colour = "darkred")) +
   labs(
-    title = "Evolucion de la Poblacion de Alalpardo",
-    x = "Años",
-    y = "Total población")
+    title = "Evolución de las personas nacidas en Alalpardo",
+    y = "Número de nacimientos")
 
 ```
