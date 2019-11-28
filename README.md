@@ -1,5 +1,5 @@
 # ProyectoR_AnaGimenez
-Para leer correctamente el documento será necesario abrir las siguientes librerias:
+Para leer correctamente el documento serán necesarias las siguientes librerías:
 - library(rvest)
 - library(reshape2)
 - library(lattice) 
