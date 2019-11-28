@@ -52,7 +52,6 @@ En este
 
 library(rvest)
 library(reshape2)
-library(lattice) 
 library(ggplot2)
 library(rmdformats)
 library(kableExtra)
